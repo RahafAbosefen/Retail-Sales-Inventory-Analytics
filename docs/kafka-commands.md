@@ -1,49 +1,92 @@
-# Kafka Commands Documentation
+1) Start Zookeeper (Terminal 1)
 
-This document describes the Kafka setup and commands used in the
-**Retail Sales Inventory Analytics** project.
-
-Kafka is used as a streaming platform to deliver inventory data
-to Spark Streaming for real-time processing.
-
----
-
-## 1. Start Zookeeper
 Zookeeper is required to manage Kafka brokers.
-```bash
-bin/windows/zookeeper-server-start.bat config/zookeeper.properties 
-```
-## 2. Start Kafka Broker
-After starting Zookeeper, the Kafka broker is started.
-```bash
-bin/windows/kafka-server-start.bat config/server.properties
-```
-## 3. Create Kafka Topic
+
+bin\windows\zookeeper-server-start.bat config\zookeeper.properties
+
+
+Keep this terminal running.
+
+2) Start Kafka Broker (Terminal 2)
+
+After starting Zookeeper, start the Kafka broker.
+
+bin\windows\kafka-server-start.bat config\server.properties
+
+
+Keep this terminal running.
+
+3) Create Kafka Topic
+
 A topic named first-topic is created to stream inventory data.
-```bash
-bin/windows/kafka-topics.bat --create ^
+
+bin\windows\kafka-topics.bat --create ^
 --topic first-topic ^
 --bootstrap-server localhost:9092 ^
 --partitions 1 ^
 --replication-factor 1
-```
-## 4. List Available Topics
-This command is used to verify that the topic was created successfully.
-```bash
-bin/windows/kafka-topics.bat --list --bootstrap-server localhost:9092
-```
-## 5. Start Kafka Console Producer (Test)
-The console producer is used to manually send test messages.
-```bash
-bin/windows/kafka-console-producer.bat ^
---broker-list localhost:9092 ^
---topic first-topic
-```
-## 6. Start Kafka Console Consumer (Test)
-The console consumer is used to verify that messages are received correctly.
-```bash
-bin/windows/kafka-console-consumer.bat ^
+
+4) List Available Topics
+
+Verify that the topic was created successfully.
+
+bin\windows\kafka-topics.bat --list --bootstrap-server localhost:9092
+
+
+Expected output:
+
+first-topic
+
+5) Start Kafka Console Consumer (Test) – Terminal 3
+
+Used to verify that messages are received correctly.
+
+bin\windows\kafka-console-consumer.bat ^
 --bootstrap-server localhost:9092 ^
 --topic first-topic ^
 --from-beginning
-```
+
+
+Keep this terminal open to monitor incoming messages.
+
+6) Start Kafka Console Producer (Test) – Terminal 4
+
+Used to manually send test messages.
+
+bin\windows\kafka-console-producer.bat ^
+--broker-list localhost:9092 ^
+--topic first-topic
+
+
+Type any message and press Enter.
+The message should appear in the Consumer terminal.
+
+7) Project Kafka Producer (CSV → Kafka)
+
+In this repository:
+
+CSV data file:
+
+data/Items-bigdata.csv
+
+
+Kafka producer script:
+
+kafka/producer.py
+
+
+The producer reads inventory data from the CSV file and sends each row as a JSON message to Kafka.
+
+Run the Producer
+
+From the project root directory:
+
+cd C:\Retail-Sales-Inventory-Analytics
+python kafka\producer.py
+
+
+Expected behavior:
+
+Each CSV row is sent to Kafka
+
+Messages appear in the Kafka Consumer terminal in real time
