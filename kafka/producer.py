@@ -9,6 +9,7 @@ from pathlib import Path
 BOOTSTRAP_SERVERS = "localhost:9092"
 TOPIC_NAME = "first-topic"
 
+# ../data/Items-bigdata.csv
 CSV_FILE_PATH = Path(__file__).resolve().parent.parent / "data" / "Items-bigdata.csv"
 
 producer = KafkaProducer(
@@ -19,14 +20,51 @@ producer = KafkaProducer(
     linger_ms=50
 )
 
-def now_iso():
+def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
-def safe_int(v, default=0):
+def safe_int(v, default=0) -> int:
     try:
-        return int(float(v))
+        s = str(v).strip()
+        if not s:
+            return default
+        return int(float(s))
     except Exception:
         return default
+
+def clean_row(row: dict) -> dict:
+    """
+    - Normalize keys/values
+    - Remove weird BOM characters if they exist
+    """
+    cleaned = {}
+    for k, v in (row or {}).items():
+        kk = (k or "").replace("\ufeff", "").strip()
+        vv = ("" if v is None else str(v)).replace("\ufeff", "").strip()
+        cleaned[kk] = vv
+    return cleaned
+
+def read_csv_rows(csv_path: Path) -> list[dict]:
+    """
+    Robust CSV reader for Windows-exported files:
+    tries utf-8-sig -> cp1252 -> latin-1, with a final fallback using replace.
+    """
+    encodings_to_try = ["utf-8-sig", "cp1252", "latin-1"]
+
+    for enc in encodings_to_try:
+        try:
+            with open(csv_path, mode="r", encoding=enc, newline="") as f:
+                reader = csv.DictReader(f)
+                rows = [clean_row(r) for r in reader]
+            # If we got headers and at least attempted parsing, accept
+            return rows
+        except UnicodeDecodeError:
+            continue
+
+    # Final fallback (never crash because of encoding)
+    with open(csv_path, mode="r", encoding="utf-8", errors="replace", newline="") as f:
+        reader = csv.DictReader(f)
+        return [clean_row(r) for r in reader]
 
 def pick_item_id(row: dict) -> str:
     for k in ["ItemId", "itemId", "item_id", "ID", "Id", "id", "SKU", "sku"]:
@@ -34,10 +72,11 @@ def pick_item_id(row: dict) -> str:
             return str(row[k]).strip()
     if row:
         first_key = list(row.keys())[0]
-        return str(row.get(first_key, "unknown")).strip()
+        return str(row.get(first_key, "unknown")).strip() or "unknown"
     return "unknown"
 
 def build_event(row: dict) -> dict:
+    row = clean_row(row)
     item_id = pick_item_id(row)
 
     current_stock = None
@@ -48,7 +87,6 @@ def build_event(row: dict) -> dict:
 
     event_type = random.choices(["SALE", "RESTOCK"], weights=[0.75, 0.25])[0]
     qty = random.randint(1, 5)
-
     delta = -qty if event_type == "SALE" else qty
 
     event = {
@@ -72,9 +110,7 @@ def main():
     print(f"Starting Kafka Producer -> topic: {TOPIC_NAME}")
     print(f"Reading CSV from: {CSV_FILE_PATH}")
 
-    with open(CSV_FILE_PATH, mode="r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    rows = read_csv_rows(CSV_FILE_PATH)
 
     if not rows:
         print("CSV is empty. Nothing to stream.")
@@ -88,7 +124,11 @@ def main():
 
             future = producer.send(TOPIC_NAME, value=event)
             metadata = future.get(timeout=10)
-            print(f"Sent -> partition={metadata.partition}, offset={metadata.offset}, event={event['event_type']}, item_id={event['item_id']}, delta={event['delta_qty']}")
+
+            print(
+                f"Sent -> partition={metadata.partition}, offset={metadata.offset}, "
+                f"event={event['event_type']}, item_id={event['item_id']}, delta={event['delta_qty']}"
+            )
 
             i += 1
             time.sleep(1)
