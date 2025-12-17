@@ -79,11 +79,8 @@ def build_event(row: dict) -> dict:
     row = clean_row(row)
     item_id = pick_item_id(row)
 
-    current_stock = None
-    for k in ["Stock", "stock", "Quantity", "quantity", "Qty", "qty", "OnHand", "onHand"]:
-        if k in row and str(row[k]).strip():
-            current_stock = safe_int(row[k], default=0)
-            break
+    # قراءة المخزون مباشرة من اسم العمود الصحيح في الملف
+    current_stock = safe_int(row.get("Stock Balance"), default=0)
 
     event_type = random.choices(["SALE", "RESTOCK"], weights=[0.75, 0.25])[0]
     qty = random.randint(1, 5)
@@ -96,10 +93,8 @@ def build_event(row: dict) -> dict:
         "delta_qty": delta,
         "source": "csv-simulator",
         "item": row,
+        "reported_stock": current_stock # إرسال القيمة لسبارك ليختفي الـ NULL
     }
-
-    if current_stock is not None:
-        event["reported_stock"] = current_stock
 
     return event
 
