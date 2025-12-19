@@ -79,8 +79,10 @@ def build_event(row: dict) -> dict:
     row = clean_row(row)
     item_id = pick_item_id(row)
 
-    # قراءة المخزون مباشرة من اسم العمود الصحيح في الملف
+    # قراءة البيانات مباشرة من الأعمدة الصحيحة في ملفك
     current_stock = safe_int(row.get("Stock Balance"), default=0)
+    # نأخذ الاسم من عمود "Iteam-Name" الموجود في ملفك
+    item_name = row.get("Iteam-Name", "Unknown Item")
 
     event_type = random.choices(["SALE", "RESTOCK"], weights=[0.75, 0.25])[0]
     qty = random.randint(1, 5)
@@ -90,14 +92,13 @@ def build_event(row: dict) -> dict:
         "event_time": now_iso(),
         "event_type": event_type,
         "item_id": item_id,
+        "item_name": item_name,    # أضفنا هذا السطر ليتوافق مع السبارك الجديد
         "delta_qty": delta,
         "source": "csv-simulator",
-        "item": row,
-        "reported_stock": current_stock # إرسال القيمة لسبارك ليختفي الـ NULL
+        "reported_stock": current_stock
     }
 
     return event
-
 def main():
     if not CSV_FILE_PATH.exists():
         raise FileNotFoundError(f"CSV file not found: {CSV_FILE_PATH}")
