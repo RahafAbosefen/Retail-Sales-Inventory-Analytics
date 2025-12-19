@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="mongodb.spark.mongo.connector_2.13" type="repository">
+    <properties maven-id="org.mongodb.spark:mongo-spark-connector_2.12:10.3.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/mongo-spark-connector_2.12-10.3.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mongodb-driver-sync-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/bson-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/mongodb-driver-core-4.8.2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/bson-record-codec-4.8.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
