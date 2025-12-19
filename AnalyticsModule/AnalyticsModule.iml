@@ -10,6 +10,6 @@
     <orderEntry type="library" exported="" name="scala-sdk-2.12.18" level="project" />
     <orderEntry type="library" exported="" name="activation-1.1.1" level="project" />
     <orderEntry type="library" exported="" name="apache.spark.sql.kafka.0.10_2.12" level="project" />
-    <orderEntry type="library" name="mongodb.spark.mongo.connector_2.13" level="project" />
+    <orderEntry type="library" exported="" name="mongodb.spark.mongo.connector_2.13" level="project" />
   </component>
 </module>
