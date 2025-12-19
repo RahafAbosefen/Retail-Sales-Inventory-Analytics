@@ -9,7 +9,7 @@ from pathlib import Path
 BOOTSTRAP_SERVERS = "localhost:9092"
 TOPIC_NAME = "first-topic"
 
-# ../data/Items-bigdata.csv
+
 CSV_FILE_PATH = Path(__file__).resolve().parent.parent / "data" / "Items-bigdata.csv"
 
 producer = KafkaProducer(
@@ -33,10 +33,7 @@ def safe_int(v, default=0) -> int:
         return default
 
 def clean_row(row: dict) -> dict:
-    """
-    - Normalize keys/values
-    - Remove weird BOM characters if they exist
-    """
+
     cleaned = {}
     for k, v in (row or {}).items():
         kk = (k or "").replace("\ufeff", "").strip()
@@ -45,10 +42,7 @@ def clean_row(row: dict) -> dict:
     return cleaned
 
 def read_csv_rows(csv_path: Path) -> list[dict]:
-    """
-    Robust CSV reader for Windows-exported files:
-    tries utf-8-sig -> cp1252 -> latin-1, with a final fallback using replace.
-    """
+
     encodings_to_try = ["utf-8-sig", "cp1252", "latin-1"]
 
     for enc in encodings_to_try:
@@ -56,12 +50,12 @@ def read_csv_rows(csv_path: Path) -> list[dict]:
             with open(csv_path, mode="r", encoding=enc, newline="") as f:
                 reader = csv.DictReader(f)
                 rows = [clean_row(r) for r in reader]
-            # If we got headers and at least attempted parsing, accept
+
             return rows
         except UnicodeDecodeError:
             continue
 
-    # Final fallback (never crash because of encoding)
+
     with open(csv_path, mode="r", encoding="utf-8", errors="replace", newline="") as f:
         reader = csv.DictReader(f)
         return [clean_row(r) for r in reader]
@@ -79,9 +73,9 @@ def build_event(row: dict) -> dict:
     row = clean_row(row)
     item_id = pick_item_id(row)
 
-    # قراءة البيانات مباشرة من الأعمدة الصحيحة في ملفك
+
     current_stock = safe_int(row.get("Stock Balance"), default=0)
-    # نأخذ الاسم من عمود "Iteam-Name" الموجود في ملفك
+
     item_name = row.get("Iteam-Name", "Unknown Item")
 
     event_type = random.choices(["SALE", "RESTOCK"], weights=[0.75, 0.25])[0]
@@ -92,7 +86,7 @@ def build_event(row: dict) -> dict:
         "event_time": now_iso(),
         "event_type": event_type,
         "item_id": item_id,
-        "item_name": item_name,    # أضفنا هذا السطر ليتوافق مع السبارك الجديد
+        "item_name": item_name,
         "delta_qty": delta,
         "source": "csv-simulator",
         "reported_stock": current_stock

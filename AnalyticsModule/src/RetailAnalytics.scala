@@ -13,7 +13,7 @@ object RetailAnalyticsFinal {
       .getOrCreate()
 
     spark.sparkContext.setLogLevel("WARN")
-    import spark.implicits._
+
 
 
     val bf = BloomFilter.create(5000, 0.01)
