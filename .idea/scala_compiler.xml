@@ -2,6 +2,6 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <option name="separateProdTestSources" value="true" />
-    <profile name="sbt 1" modules="ScalaAnalytics,ScalaAnalytics.main,ScalaAnalytics.test,Spark-Scala,Spark-Scala.main,Spark-Scala.spark-scala,Spark-Scala.spark-scala.main,Spark-Scala.spark-scala.test,Spark-Scala.test,spark-scala,spark-scala.main,spark-scala.test" />
+    <profile name="sbt 1" modules="ScalaAnalytics,ScalaAnalytics.main,ScalaAnalytics.test,Spark-Scala,Spark-Scala.main,Spark-Scala.spark-scala,Spark-Scala.spark-scala.main,Spark-Scala.spark-scala.main~1,Spark-Scala.spark-scala.test,Spark-Scala.spark-scala.test~1,Spark-Scala.test,spark-scala,spark-scala.main,spark-scala.test" />
   </component>
 </project>
