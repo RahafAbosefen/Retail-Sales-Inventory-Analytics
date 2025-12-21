@@ -73,6 +73,23 @@ object RetailAnalyticsFinal {
         col("Behavior_Analysis"),
         col("Suggested_Order_Qty")
       )
+    // ================================
+    // LIVE SALES (NEW COLLECTION)
+    // ================================
+
+    val liveSalesDF = processedDF
+      .filter(col("event_type") === "SALE")
+      .withColumn("Qty", lit(1))
+      .withColumn("Total", lit(1)) // Total رمزي (عملية بيع واحدة)
+      .withColumn("Offer", checkPromoEligibility(col("item_id")))
+      .withColumn("Time", date_format(col("timestamp"), "yyyy-MM-dd HH:mm:ss"))
+      .select(
+        col("item_name").as("Product"),
+        col("Qty"),
+        col("Total"),
+        col("Offer"),
+        col("Time")
+      )
 
 
     val query = cleanFinalDF.writeStream
@@ -92,6 +109,52 @@ object RetailAnalyticsFinal {
       .format("console")
       .option("truncate", "false")
       .start()
+    // ================================
+    // WRITE LIVE SALES TO MONGODB
+    // ================================
+
+    val liveSalesQuery = liveSalesDF.writeStream
+      .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
+        batchDF.write
+          .format("mongodb")
+          .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
+          .option("spark.mongodb.database", "inventory_db")
+          .option("spark.mongodb.collection", "live_sales")
+          .mode("append")
+          .save()
+      }
+      .option("checkpointLocation", "C:/bigdata/checkpoints/live_sales")
+      .start()
+    // ================================
+    // DAILY SALES SUMMARY (NEW FEATURE)
+    // ================================
+    val dailySalesSummaryBatchDF = spark.read
+      .format("mongodb")
+      .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
+      .option("spark.mongodb.database", "inventory_db")
+      .option("spark.mongodb.collection", "live_sales")
+      .load()
+      .withColumn("date", to_date(col("Time")))
+      .groupBy("date")
+      .agg(
+        count("*").as("total_orders"),
+        count("*").as("total_items_sold"),
+        count("*").as("total_sales")
+      )
+      .withColumn(
+        "average_order_value",
+        col("total_sales") / col("total_orders")
+      )
+
+    dailySalesSummaryBatchDF.write
+      .format("mongodb")
+      .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
+      .option("spark.mongodb.database", "inventory_db")
+      .option("spark.mongodb.collection", "daily_sales_summary")
+      .mode("overwrite")
+      .save()
+
+
 
     spark.streams.awaitAnyTermination()
   }

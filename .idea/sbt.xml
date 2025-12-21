@@ -19,8 +19,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$/Spark-Scala" />
         <option name="modules">
           <set>
-            <option value="C:\Users\aliya\Desktop\IntelliJ IDEA 2024.3\bin\Desktop\Projects\Spark-Scala" />
-            <option value="C:\Users\aliya\Desktop\IntelliJ IDEA 2024.3\bin\Desktop\Projects\Spark-Scala\project" />
+            <option value="C:\Users\aliya\Desktop\IntelliJ IDEA 2024.3\bin\Desktop\Retail-Sales-Inventory-Analytics\Spark-Scala" />
+            <option value="C:\Users\aliya\Desktop\IntelliJ IDEA 2024.3\bin\Desktop\Retail-Sales-Inventory-Analytics\Spark-Scala\project" />
           </set>
         </option>
         <option name="sbtVersion" value="1.11.7" />
