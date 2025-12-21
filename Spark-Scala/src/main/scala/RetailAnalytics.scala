@@ -73,14 +73,12 @@ object RetailAnalyticsFinal {
         col("Behavior_Analysis"),
         col("Suggested_Order_Qty")
       )
-    // ================================
-    // LIVE SALES (NEW COLLECTION)
-    // ================================
+
 
     val liveSalesDF = processedDF
       .filter(col("event_type") === "SALE")
       .withColumn("Qty", lit(1))
-      .withColumn("Total", lit(1)) // Total رمزي (عملية بيع واحدة)
+      .withColumn("Total", lit(1))
       .withColumn("Offer", checkPromoEligibility(col("item_id")))
       .withColumn("Time", date_format(col("timestamp"), "yyyy-MM-dd HH:mm:ss"))
       .select(
@@ -103,16 +101,6 @@ object RetailAnalyticsFinal {
       .option("checkpointLocation", "C:/bigdata/checkpoints/final_production_v7")
       .start()
 
-
-    val console = cleanFinalDF.writeStream
-      .outputMode("append")
-      .format("console")
-      .option("truncate", "false")
-      .start()
-    // ================================
-    // WRITE LIVE SALES TO MONGODB
-    // ================================
-
     val liveSalesQuery = liveSalesDF.writeStream
       .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
         batchDF.write
@@ -125,9 +113,7 @@ object RetailAnalyticsFinal {
       }
       .option("checkpointLocation", "C:/bigdata/checkpoints/live_sales")
       .start()
-    // ================================
-    // DAILY SALES SUMMARY (NEW FEATURE)
-    // ================================
+
     val dailySalesSummaryBatchDF = spark.read
       .format("mongodb")
       .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
@@ -154,7 +140,11 @@ object RetailAnalyticsFinal {
       .mode("overwrite")
       .save()
 
-
+    val console = cleanFinalDF.writeStream
+      .outputMode("append")
+      .format("console")
+      .option("truncate", "false")
+      .start()
 
     spark.streams.awaitAnyTermination()
   }
