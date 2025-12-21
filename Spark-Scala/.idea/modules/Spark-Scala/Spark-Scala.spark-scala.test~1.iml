@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id="spark-scala:test [file:///C:/Users/aliya/Desktop/IntelliJ%20IDEA%202024.3/bin/Desktop/Projects/Spark-Scala/]" external.linked.project.path="C:\Users\aliya\Desktop\IntelliJ IDEA 2024.3\bin\Desktop\Projects\Spark-Scala" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="SBT" external.system.module.type="sbtSourceSet" type="JAVA_MODULE" version="4">
-  <component name="DisplayModuleName">
-    <option name="name" value="spark-scala.test" />
-  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output-test url="file://$MODULE_DIR$/../../../target/scala-2.12/test-classes" />
     <exclude-output />
