@@ -5,9 +5,9 @@
       <module fileurl="file://$PROJECT_DIR$/AnalyticsModule/AnalyticsModule.iml" filepath="$PROJECT_DIR$/AnalyticsModule/AnalyticsModule.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/Retail-Sales-Inventory-Analytics.iml" filepath="$PROJECT_DIR$/.idea/Retail-Sales-Inventory-Analytics.iml" />
       <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.main.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.main~1.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.main~1.iml" />
       <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.spark-scala-build.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.spark-scala-build.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.test.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.test~1.iml" filepath="$PROJECT_DIR$/Spark-Scala/.idea/modules/Spark-Scala/Spark-Scala.spark-scala.test~1.iml" />
       <module fileurl="file://$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.iml" filepath="$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.iml" />
       <module fileurl="file://$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.main.iml" filepath="$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.spark-scala-build.iml" filepath="$PROJECT_DIR$/AnalyticsModule/spark-scala/.idea/modules/spark-scala/spark-scala.spark-scala-build.iml" />
