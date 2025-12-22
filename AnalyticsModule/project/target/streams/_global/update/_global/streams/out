@@ -1,0 +1,3 @@
+[debug] not up to date. inChanged = true, force = false
+[debug] Updating ProjectRef(uri("file:/C:/bigdata/spark_app/Retail-Sales-Inventory-Analytics10/AnalyticsModule/project/"), "analyticsmodule-build")...
+[debug] Done updating ProjectRef(uri("file:/C:/bigdata/spark_app/Retail-Sales-Inventory-Analytics10/AnalyticsModule/project/"), "analyticsmodule-build")

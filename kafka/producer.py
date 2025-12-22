@@ -73,9 +73,10 @@ def build_event(row: dict) -> dict:
     row = clean_row(row)
     item_id = pick_item_id(row)
 
+    # قراءة السعر من عمود Selling Price وتحويله لرقم
+    item_price = float(row.get("Selling Price", 0.0))
 
     current_stock = safe_int(row.get("Stock Balance"), default=0)
-
     item_name = row.get("Iteam-Name", "Unknown Item")
 
     event_type = random.choices(["SALE", "RESTOCK"], weights=[0.75, 0.25])[0]
@@ -87,12 +88,14 @@ def build_event(row: dict) -> dict:
         "event_type": event_type,
         "item_id": item_id,
         "item_name": item_name,
+        "item_price": item_price, # الحقل الجديد
         "delta_qty": delta,
         "source": "csv-simulator",
         "reported_stock": current_stock
     }
-
     return event
+
+
 def main():
     if not CSV_FILE_PATH.exists():
         raise FileNotFoundError(f"CSV file not found: {CSV_FILE_PATH}")
@@ -117,7 +120,7 @@ def main():
 
             print(
                 f"Sent -> partition={metadata.partition}, offset={metadata.offset}, "
-                f"event={event['event_type']}, item_id={event['item_id']}, delta={event['delta_qty']}"
+                f"event={event['event_type']}, item_id={event['item_id']}, delta={event['delta_qty']} ," f"Price={event['item_price']},"
             )
 
             i += 1

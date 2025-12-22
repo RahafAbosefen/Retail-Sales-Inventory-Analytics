@@ -27,10 +27,13 @@ object RetailAnalyticsFinal {
     })
 
 
-    val schema = StructType(Seq(
+    val schema = StructType(Array(
+      StructField("event_time", StringType, true),
+      StructField("event_type", StringType, true),
       StructField("item_id", StringType, true),
       StructField("item_name", StringType, true),
-      StructField("event_type", StringType, true),
+      StructField("item_price", DoubleType, true),
+      StructField("delta_qty", IntegerType, true),
       StructField("reported_stock", IntegerType, true)
     ))
 
@@ -42,11 +45,17 @@ object RetailAnalyticsFinal {
       .load()
 
 
+
     val processedDF = df.selectExpr("CAST(value AS STRING)")
       .select(from_json(col("value"), schema).as("data"))
       .select("data.*")
       .withColumn("timestamp", current_timestamp())
       .withWatermark("timestamp", "10 minutes")
+
+      .withColumn("total_revenue",
+        when(col("event_type") === "SALE", abs(col("delta_qty")) * col("item_price"))
+          .otherwise(0.0)
+      )
 
 
     val REORDER_POINT = 50
@@ -77,8 +86,8 @@ object RetailAnalyticsFinal {
 
     val liveSalesDF = processedDF
       .filter(col("event_type") === "SALE")
-      .withColumn("Qty", lit(1))
-      .withColumn("Total", lit(1))
+      .withColumn("Qty", abs(col("delta_qty")))
+      .withColumn("Total", col("total_revenue"))
       .withColumn("Offer", checkPromoEligibility(col("item_id")))
       .withColumn("Time", date_format(col("timestamp"), "yyyy-MM-dd HH:mm:ss"))
       .select(
@@ -103,6 +112,7 @@ object RetailAnalyticsFinal {
 
     val liveSalesQuery = liveSalesDF.writeStream
       .foreachBatch { (batchDF: DataFrame, batchId: Long) =>
+
         batchDF.write
           .format("mongodb")
           .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
@@ -110,41 +120,37 @@ object RetailAnalyticsFinal {
           .option("spark.mongodb.collection", "live_sales")
           .mode("append")
           .save()
+
+
+        if (!batchDF.isEmpty) {
+          val dailySummary = batchDF
+            .withColumn("date", to_date(col("Time")))
+            .groupBy("date")
+            .agg(
+              count("*").as("total_orders"),
+              sum("Qty").as("total_items_sold"),
+              sum("Total").as("total_sales_revenue")
+            )
+
+          dailySummary.write
+            .format("mongodb")
+            .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
+            .option("spark.mongodb.database", "inventory_db")
+            .option("spark.mongodb.collection", "daily_sales_summary")
+            .mode("append")
+            .save()
+        }
       }
       .option("checkpointLocation", "C:/bigdata/checkpoints/live_sales")
       .start()
 
-    val dailySalesSummaryBatchDF = spark.read
-      .format("mongodb")
-      .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
-      .option("spark.mongodb.database", "inventory_db")
-      .option("spark.mongodb.collection", "live_sales")
-      .load()
-      .withColumn("date", to_date(col("Time")))
-      .groupBy("date")
-      .agg(
-        count("*").as("total_orders"),
-        count("*").as("total_items_sold"),
-        count("*").as("total_sales")
-      )
-      .withColumn(
-        "average_order_value",
-        col("total_sales") / col("total_orders")
-      )
-
-    dailySalesSummaryBatchDF.write
-      .format("mongodb")
-      .option("spark.mongodb.connection.uri", "mongodb://127.0.0.1:27017")
-      .option("spark.mongodb.database", "inventory_db")
-      .option("spark.mongodb.collection", "daily_sales_summary")
-      .mode("overwrite")
-      .save()
 
     val console = cleanFinalDF.writeStream
       .outputMode("append")
       .format("console")
       .option("truncate", "false")
       .start()
+
 
     spark.streams.awaitAnyTermination()
   }
