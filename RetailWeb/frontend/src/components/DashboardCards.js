@@ -63,11 +63,12 @@ const DashboardCards = () => {
     },
     {
       title: "Total Sales",
-      value: `$${dailySummary.total_sales}`,
+      value: `$${Number(dailySummary.total_sales_revenue).toFixed(2)}`,
       trend: "+8.3%",
       variant: "success",
       icon: <FaDollarSign />,
     },
+
     {
       title: "Low Stock",
       value: lowStock,

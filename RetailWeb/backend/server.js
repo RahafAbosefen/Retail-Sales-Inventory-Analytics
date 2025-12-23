@@ -53,16 +53,40 @@ app.get("/api/recommendations", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
-// Daily Sales Summary
+// Daily Sales Summary (AGGREGATED PER DAY)
 app.get("/api/daily_sales_summary", async (req, res) => {
   try {
-    const summary = await DailySalesSummary.findOne().sort({ date: -1 });
-    res.json(summary);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const summary = await DailySalesSummary.aggregate([
+      {
+        $match: {
+          date: { $gte: startOfDay }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          total_orders: { $sum: "$total_orders" },
+          total_items_sold: { $sum: "$total_items_sold" },
+          total_sales_revenue: { $sum: "$total_sales_revenue" }
+        }
+      }
+    ]);
+
+    res.json({
+      date: startOfDay,
+      total_orders: summary[0]?.total_orders || 0,
+      total_items_sold: summary[0]?.total_items_sold || 0,
+      total_sales_revenue: summary[0]?.total_sales_revenue || 0
+    });
+
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 // Live Sales
 app.get("/api/live_sales", async (req, res) => {

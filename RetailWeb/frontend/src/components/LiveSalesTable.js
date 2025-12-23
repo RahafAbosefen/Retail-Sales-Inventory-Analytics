@@ -11,17 +11,24 @@ const LiveSalesTable = () => {
   const [sales, setSales] = useState([]);
 
   /* ===== Fetch function ===== */
-  const fetchLiveSales = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/live_sales");
-      const data = await res.json();
-      setSales(data);
-    } catch (err) {
-      console.error("Error fetching live sales:", err);
-    }
-  };
+    const fetchLiveSales = async () => {
+        try {
+            const res = await fetch("http://localhost:5000/api/live_sales");
+            const data = await res.json();
 
-  /* ===== Poll every 1 second ===== */
+            // 🔥 الترتيب: الأحدث أولاً
+            const sorted = data.sort(
+                (a, b) => new Date(b.Time) - new Date(a.Time)
+            );
+
+            setSales(sorted);
+        } catch (err) {
+            console.error("Error fetching live sales:", err);
+        }
+    };
+
+
+    /* ===== Poll every 1 second ===== */
   useEffect(() => {
     fetchLiveSales();
     const interval = setInterval(fetchLiveSales, 1000);
