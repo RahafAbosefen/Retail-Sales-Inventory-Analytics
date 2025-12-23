@@ -73,7 +73,7 @@ def build_event(row: dict) -> dict:
     row = clean_row(row)
     item_id = pick_item_id(row)
 
-    # قراءة السعر من عمود Selling Price وتحويله لرقم
+
     item_price = float(row.get("Selling Price", 0.0))
 
     current_stock = safe_int(row.get("Stock Balance"), default=0)
